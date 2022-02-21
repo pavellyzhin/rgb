@@ -71,23 +71,25 @@ span.mov{
 	font-family: verdana;
 }
 
-div.cols {
+div.gameBoardCols {
 	display: flex;
 	flex-direction:row;
 }
 
 
-div.cols div.col {
+div.gameBoardCols div.col {
 	width: 49px;
 	height: 50px;
 	text-align: center;
 	line-height: 50px;
 	border-left: 1px solid #DDD;
 }
-div.cols div.col:last-child {border-right: 1px solid #DDD;}
-div.gameBoard {
+div.gameBoardCols div.col:last-child {border-right: 1px solid #DDD;}
+div.gameBoardRGB {
 		width: 250px;
 		height: 250px;
+		
+		position: relative;
 }
 
 div.down {
@@ -115,12 +117,14 @@ div.player {
 	border: 1px solid #DDD;
 	text-align: center;
 	line-height: 50px;
+	position: absolute;
 }
 div.box {
 	width: 50px; height: 50px;
 	border: 1px solid #DDD;
 	text-align: center;
 	line-height: 50px;
+	position: absolute;
 }
 
 .over {
