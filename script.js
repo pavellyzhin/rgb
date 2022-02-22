@@ -1,7 +1,15 @@
 class htmlModel {
 	
-	constructor(className){
+	constructor(element=''){
+		this.element = element;
+	}
+
+	getQS(className){
 		this.element = document.querySelector('.' + className);
+	}
+	
+	addElement(tag){
+		this.element = document.createElement(tag);
 	}
 	
 	getLeft(){
@@ -10,6 +18,10 @@ class htmlModel {
 	
 	getTop(){
 		return this.element.style.top.replace('px','');
+	}
+	
+	toLeft(num){
+		this.element.style.left = this.getLeft() + parseInt(num) + 'px';
 	}
 	
 	setTop(y){
@@ -28,29 +40,55 @@ class htmlModel {
 		return this.element.offsetHeight;
 	}
 	
+	clear(){
+		this.element.innerHTML='';
+	}
+	
 }
 
-class gameModel {
+class gameModel extends htmlModel {
 	
 	constructor(className){
-		this.element = new htmlModel(className);
-	}
-}
-
-class gameBoardModel {
-	constructor(className){
-		this.element = new htmlModel(className);
-	}
-}
-
-class gameBoardRowsModel{
-	constructor(className){
-		this.element = new htmlModel(className);
+		super();
+		this.getQS(className);
 		
+		this.gameBoard      = new gameBoardModel('gameBoard');
+		this.gameBoardRGB   = new gameBoardRGBModel('gameBoardRGB');
+		this.gameBoardRows  = new gameBoardRowsModel('rows');
+		this.gameBoardCols  = new gameBoardColsModel('gameBoardCols');
+		this.gameScore	    = new gameScoreModel('score');
+		this.gameMoves	    = new gameMovesModel('gameMoves');
+		this.gameMovesScore = new gameMovesScoreModel('count');		
 	}
 	
 	init(num){
-		this.element.element.innerHTML = '';
+		this.gameBoardCols.init(num);
+		this.gameBoardRows.init(num);
+		this.gameBoardRGB.initGen(num , num );
+		this.gameScore.setScore(num);
+		this.gameMovesScore.get( this.gameMoves.list.length );
+	}
+	
+	actions(){
+		
+	}
+}
+
+class gameBoardModel extends htmlModel {
+	constructor(className){
+		super();
+		this.getQS(className);
+	}
+}
+
+class gameBoardRowsModel extends htmlModel{
+	constructor(className){
+		super();
+		this.getQS(className);
+	}
+	
+	init(num){
+		
 		for(let i = 0 ; i < num; i++ ){
 			
 			let el = new gameBoardRowsCellModel();
@@ -63,24 +101,27 @@ class gameBoardRowsModel{
 			el.element.style.lineHeight = '50px';
 			el.element.style.textAlign = 'center';
 			
-			this.element.element.appendChild(el.element);
+			this.element.appendChild(el.element);
 		}
 	}
 }
 
-class gameBoardColsModel {
+class gameBoardColsModel extends htmlModel{
 	constructor(className){
-		this.element = new htmlModel(className);
+		super();
+		this.getQS(className);
 	}
 	
 	init(num){
+		
+		this.clear();
 		
 		let generate = new generateContentModel();
 		
 		for(let i = 0 ; i < num; i++){
 			
 			let el = new gameBoardColsCellModel();
-			console.log(el.element);
+			
 			el.element.style.width = '50px';
 			el.element.style.height = '50px';
 			el.element.style.left = i * 50 + 'px';
@@ -90,100 +131,148 @@ class gameBoardColsModel {
 			el.element.style.textAlign = 'center';
 			el.element.textContent = generate.symbol(i);
 			
-			this.element.element.appendChild(el.element);
+			this.element.appendChild(el.element);
 		}
 	}
+	
+	 
 }
 
-class gameBoardRGBModel{
+class gameBoardRGBModel extends htmlModel{
+	
 	constructor(className){
-		this.element = new htmlModel(className);
+		super();
+		this.getQS(className);
 	}
 	
 	initGen(col,row){
 		
+		this.clear(); 
+		this.element.style.width = col * 50 + 'px';
+		this.element.style.height = row * 50 + 'px';
 		let left = 0;
-		let top = 0;
-		let gen = new generateContentModel();
-		let player = Math.floor(Math.random() * (col*row));
+		let top  = 0;
+		let gen  = new generateContentModel();
+		
+		let player = Math.floor(Math.random() * (col * row));
+		
 		for(let i = 0 ; i < (col * row) ; i++ ){
 			
-			let el = new gameBoardRGBCellModel();
-			if(i%row == 0 && i > 0){
-				left = 0;
-				top += 50;
-			} else {
-				if(i>0){
-					left += 50;
-				}
-			}
-			el.element.style.left = left + 'px' ;
-			el.element.style.top  = top  + 'px' ;
-			
+			let el  = new gameBoardRGBCellModel();
 			let rgb = gen.randomRGB();
 			
+			if(i%row == 0 && i > 0) {
+
+				left = 0;
+				top += 50;
+
+			} else {
+				
+				if(i > 0){
+					
+					left += 50;
+					
+				}
+			}
 			
-			
+			el.element.style.left   = left + 'px' ;
+			el.element.style.top    = top  + 'px' ;
 			el.element.style.width  = '50px' ;
 			el.element.style.height = '50px' ;
 			
 			if(player == i){
+				
 				el.element.textContent = 'игрок';
-				el.element.className = 'player';
+				el.element.className   = 'player';
 				el.element.style.backgroundColor = 'white';
+				
 			} else {
+				
 				el.element.textContent = gen.randomNumber(15);
-				el.element.className = 'box';
+				el.element.className   = 'box';
 				el.element.style.backgroundColor = rgb;
+				
 			}
 			
 			el.element.id = i;
-			 
 			
-			this.element.element.appendChild(el.element);
+			this.element.appendChild(el.element);
 		}
 	}
 }
 
-class gameScoreModel{
+class gameScoreModel extends htmlModel {
 	constructor(className){
-		this.element = new htmlModel(className);
+		super();
+		this.getQS(className);
+	}
+	
+	getScore(){
+		
+	}
+	
+	setScore(num){
+		this.element.textContent = 'Счет: ' + num;
 	}
 }
 
-class gameMovesModel {
+class gameMovesModel extends htmlModel{
 	constructor(className){
-		this.element = new htmlModel(className);
+		super();
+		this.getQS(className);
+		this.list = [];
+	}
+	
+	setMove(){
+		
+	}
+	
+	getMoves(){
+		
 	}
 }
 
-// Ячейки будут генерироваться
-class gameBoardRGBCellModel{
-	constructor(){
-		this.element = document.createElement('div');
+class gameMovesScoreModel extends htmlModel {
+	
+	constructor(className){
+		super();
+		this.getQS(className);
+	}
+	
+	get(num){
+		this.element.textContent = 'Количество ходов: ' + num;
 	}
 	
 }
 
-class gameBoardColsCellModel {
+class gameBoardRGBCellModel extends htmlModel{
 	constructor(){
-		this.element = document.createElement('div');
+		super();
+		this.addElement('div');
 	}
 }
 
-class gameBoardRowsCellModel {
+class gameBoardColsCellModel extends htmlModel{
 	constructor(){
-		this.element = document.createElement('div');
+		super();
+		this.addElement('div');
 	}
 }
 
-class gameMoveModel{
+class gameBoardRowsCellModel extends htmlModel {
 	constructor(){
-		this.element = document.createElement('span');
+		super();
+		this.addElement('div');
 	}
 }
 
-// генерация контента в ячейки
+class gameMoveModel extends htmlModel {
+	constructor(){
+		super();
+		this.addElement('span');
+	}
+}
+
 class generateContentModel {
 	
 	constructor(){
@@ -204,36 +293,303 @@ class generateContentModel {
 	}
 }
 
-// создаем кучу экземпляров по управлению элементами
+class spaceModel {
+	
+	collision(element,target){
+		return (this.eLeftEquallytTLeft(element,target) && this.eTopEquallyTTop(element,target));
+	}
+	
+	eLeftEquallytTLeft(element,target){
+		return (this.sizeToNum(element.style.left) == this.sizeToNum(target.style.left));
+	}
+	
+	eLeftEquallytTRight(element,target){
+		return (this.sizeToNum(element.style.left) 
+		== 
+		this.sizeToNum(target.style.left) + this.sizeToNum(target.style.width));
+	}
+	
+	eRightEquallytTLeft(element,target){
+		return (this.sizeToNum(element.style.left) + this.sizeToNum(element.style.width) 
+		== 
+		this.sizeToNum(target.style.left));
+	}
+	
+	eRightEquallytTRight(element,target){
+		return (this.sizeToNum(element.style.left) + this.sizeToNum(element.style.width)
+			== 
+			this.sizeToNum(target.style.left) + this.sizeToNum(target.style.width));
+	}
+	
+	eTopEquallyTTop(element,target){
+		return (this.sizeToNum(element.style.top) 
+			== 
+		   this.sizeToNum(target.style.left));
+	}
+	
+	eTopEquallyTBottom(element,target){
+		return (this.sizeToNum(element.style.top) 
+			== 
+		   this.sizeToNum(target.style.left) + this.sizeToNum(target.style.height));
+	}
+	
+	eBottomEquallyTTop(element,target){
+		return (this.sizeToNum(element.style.top) + this.sizeToNum(element.style.height)
+			== 
+		   this.sizeToNum(target.style.left));
+	}
+	
+	eTopEquallyTBottom(element,target){
+		return (this.sizeToNum(element.style.top) + this.sizeToNum(element.style.height)
+			== 
+		   this.sizeToNum(target.style.left) + this.sizeToNum(target.style.height));
+	}
+	
+	eLeftLeftTLeft(element,target){
+		return (this.sizeToNum(element.style.left) 
+			< 
+		this.sizeToNum(target.style.left));
+	}
+	
+	eLeftRightTLeft(element,target){
+		return (this.sizeToNum(element.style.left) 
+			> 
+		this.sizeToNum(target.style.left));
+	}
+	
+	eLeftLeftTRight(element,target){
+		return (this.sizeToNum(element.style.left) 
+			< 
+		this.sizeToNum(target.style.left) + this.sizeToNum(target.style.width));
+	}
+	
+	eLeftRightTRight(element,target){
+		return (this.sizeToNum(element.style.left) 
+			> 
+		this.sizeToNum(target.style.left) + this.sizeToNum(target.style.width));
+	}
+	
+	eRightLeftTLeft(element,target){
+		return (this.sizeToNum(element.style.left) + this.sizeToNum(element.style.width) 
+			< 
+			this.sizeToNum(target.style.left));
+	}
+	
+	eRightRightTLeft(element,target){
+		return (this.sizeToNum(element.style.left) + this.sizeToNum(element.style.width) 
+			> 
+		this.sizeToNum(target.style.left));
+	}
+	
+	eRightLeftTRight(element,target){
+		return (this.sizeToNum(element.style.left) + this.sizeToNum(element.style.width) 
+			< 
+		this.sizeToNum(target.style.left)+this.sizeToNum(target.style.width));
+	}
+	
+	eRightRightTRight(element,target){
+		return (this.sizeToNum(element.style.left) + this.sizeToNum(element.style.width) 
+			< 
+		   this.sizeToNum(target.style.left)+this.sizeToNum(target.style.width));
+	}
+	
+	eTopHigherTTop(element,target){
+		return (this.sizeToNum(element.style.top) < this.sizeToNum(target.style.top));
+	}
+	
+	eTopLowerTTop(element,target){
+		return (this.sizeToNum(element.style.top) + this.sizeToNum(element.style.height)
+			> 
+		   this.sizeToNum(target.style.top));
+	}
+	
+	eTopHigherTBottom(element,target){
+		return ( this.sizeToNum(element.style.top)
+			<
+		    this.sizeToNum(target.style.top)+this.sizeToNum(target.style.height));
+	}
+	
+	eTopLowerTBottom(element,target){
+		return (this.sizeToNum(element.style.top) 
+			> 
+			this.sizeToNum(target.style.top)+this.sizeToNum(target.style.height));
+	}
+	
+	eBottomHigherTTop(element,target){
+		return (this.sizeToNum(element.style.top)+this.sizeToNum(element.style.height) 
+			< 
+			this.sizeToNum(target.style.top));
+	}
+	
+	eBottomLowerTTop(element,target){
+		return ( this.sizeToNum(element.style.top) + this.sizeToNum(element.style.height) 
+			> 
+			this.sizeToNum(target.style.top));
+	}
+	
+	eBottomHigherTBottom(element,target){
+		return ( this.sizeToNum(element.style.top)+this.sizeToNum(element.style.height) 
+			< 
+			this.sizeToNum(target.style.top)+this.sizeToNum(target.style.height));
+	}
+	
+	eBottomLowerTBottom(element,target){
+		return ( this.sizeToNum(element.style.top)+this.sizeToNum(element.style.height) 
+			>
+			this.sizeToNum(target.style.top)+this.sizeToNum(target.style.height));
+	}
+	
+	sizeToNum(size){
+		return parseInt(size.replace('px','')) ?? 0;
+	}
+}
 
-let game 	       = new gameModel('game');
-let gameBoard      = new gameBoardModel('gameBoard');
-let gameBoardRGB   = new gameBoardRGBModel('gameBoardRGB');
-let gameBoardRows  = new gameBoardRowsModel('rows');
-let gameBoardCols  = new gameBoardColsModel('gameBoardCols');
-let gameScore	   = new gameScoreModel('gameScore');
-let gameMoves	   = new gameMovesModel('gameMoves');
+class keyBoardModel {
+	
+	constructor(){
+		this.list = [];
+	}
+	
+	getKeyDown(){
+		let key = '';
+		
+		document.addEventListener('keyDown',function(k){
+			key = k.code;
+		});
+		
+		this.list = [];
+		
+		return key;
+	}
+	
+	getKeyUp(){
+		
+		let key = '';
+		
+	}
+}
+
+class actionModel extends htmlModel{
+	constructor(element){
+		super(element);
+		
+	}
+	
+	action(){
+		
+	}
+}
+
+class actionMoveModel extends actionModel {
+	constructor(element){
+		super(element);
+	}
+	
+	action(){
+		
+	}
+}
+
+class actionMoveLeftModel extends actionMoveModel{
+	constructor(element){
+		super(element);
+	}
+	
+	action(){
+		this.toLeft(50);
+	}
+}
+
+class actionSendColorModel extends actionModel {
+	constructor(element){
+		super(element);
+	}
+	
+	action(){
+		
+	}
+}
+
+class eventsModel{
+	constructor(element=''){
+		this.element = (element) ? element : document;
+	}
+}
+
+class eventsKeyDownModel extends eventsModel {
+	constructor(element=''){
+		super(element);
+	}
+	
+	event(cb){
+		this.element.addEventListener('keyDown',function(e){
+			db(e);
+		});
+	}
+}
+
+class eventsKeyUpModel extends eventsModel{
+	constructor(element=''){
+		super(element);
+	}
+	
+	event(cb){
+		this.element.addEventListener('keyUp',function(e){
+			return db(e);
+		});
+	}
+}
+
+class eventsMouseOverModel extends eventsModel {
+	constructor(element=''){
+		super(element);
+	}
+	
+	event(cb){
+		this.element.addEventListener('mouseover',function(e){
+			return cb(e);
+		});
+	}
+}
+
+class eventsMouseOutModel extends eventsModel {
+	
+	constructor(element=''){
+		super(element);
+	}
+	
+	event(cb){
+		this.element.addEventListener('mouseout',function(e){
+			return cb(e);
+		});
+	}
+}
+
+class eventsMouseClickModel extends eventsModel {
+	
+	constructor(element=''){
+		super(element);
+	}
+	
+	event(cb){
+		this.element.addEventListener('click',function(e){
+			return cb(e);
+		});
+	}
+}
 
 
 
 
-gameBoardCols.init(5);
-gameBoardRows.init(5);
-gameBoardRGB.initGen(5,5);
 
 
+let game = new gameModel('game');
+game.init(4);
 
 // собираем приложение
 // исходя из уровня сложноти будет формироваться игра
+
 var config = { level: 'small' };
 
 
-
-
-
-
-
-
-
-
-
+// нужно где-то описать поведение document.addEventListener
