@@ -2,10 +2,15 @@ class htmlModel {
 	
 	constructor(element=''){
 		this.element = element;
+		this.collection = [];
 	}
 
 	getQS(className){
 		this.element = document.querySelector('.' + className);
+	}
+	
+	getQSA(className){
+		this.collection = document.querySelectorAll('.' + className);
 	}
 	
 	addElement(tag){
@@ -21,7 +26,19 @@ class htmlModel {
 	}
 	
 	toLeft(num){
-		this.element.style.left = this.getLeft() + parseInt(num) + 'px';
+		this.element.style.left = parseInt(this.getLeft()) - parseInt(num) + 'px';
+	}
+	
+	toRight(num){
+		this.element.style.left = parseInt(this.getLeft()) + parseInt(num) + 'px';
+	}
+	
+	toUp(num){
+		this.element.style.top = parseInt(this.getTop()) - parseInt(num) + 'px';
+	}
+	
+	toDown(num){
+		this.element.style.top = parseInt(this.getTop()) + parseInt(num) + 'px';
 	}
 	
 	setTop(y){
@@ -56,17 +73,73 @@ class gameModel extends htmlModel {
 		this.gameBoardRGB   = new gameBoardRGBModel('gameBoardRGB');
 		this.gameBoardRows  = new gameBoardRowsModel('rows');
 		this.gameBoardCols  = new gameBoardColsModel('gameBoardCols');
+		
 		this.gameScore	    = new gameScoreModel('score');
 		this.gameMoves	    = new gameMovesModel('gameMoves');
 		this.gameMovesScore = new gameMovesScoreModel('count');		
+		
+		this.player = new htmlModel();
+		
+		
+		this.box = new htmlModel();
+		
+		
 	}
 	
 	init(num){
+		
 		this.gameBoardCols.init(num);
 		this.gameBoardRows.init(num);
-		this.gameBoardRGB.initGen(num , num );
+		this.gameBoardRGB.initGen( num , num );
+		
 		this.gameScore.setScore(num);
-		this.gameMovesScore.get( this.gameMoves.list.length );
+		this.gameMovesScore.get(this.gameMoves.list.length);
+		
+		this.gameBoardCols.getQSA('col');
+		this.gameBoardRows.getQSA('row');
+		
+		this.player.getQS('player');
+		this.box.getQSA('box'); // collection box
+		
+		this.initHandle();
+	}
+	
+	initHandle(){
+		
+		let keyDownDocument = new eventsKeyDownModel();
+		
+		let player = this.player;
+		let boxCollection = this.box.collection;
+		keyDownDocument.event((e) => {
+			let playerActionCollision = new actionCollisionModel(player.element,boxCollection);
+			
+			switch(e.code){
+				case 'ArrowLeft' : 
+					let playerActionMoveLeft = new actionMoveLeftModel(player.element);
+						playerActionMoveLeft.action();
+						playerActionCollision.action();		
+				break;
+				case 'ArrowRight' : 
+					let playerActionMoveRight = new actionMoveRightModel(player.element);
+					playerActionMoveRight.action();
+					playerActionCollision.action();
+				break;
+				case 'ArrowUp' :
+					let playerActionMoveUp = new actionMoveUpModel(player.element);
+					playerActionMoveUp.action();
+					playerActionCollision.action();
+				break;
+				case 'ArrowDown' : 
+					let playerActionMoveDown = new actionMoveDownModel(player.element);
+					playerActionMoveDown.action();
+					playerActionCollision.action();
+				break;
+			}
+			
+			
+			
+		});
+		
 	}
 	
 	actions(){
@@ -143,15 +216,19 @@ class gameBoardRGBModel extends htmlModel{
 	constructor(className){
 		super();
 		this.getQS(className);
+		
 	}
 	
 	initGen(col,row){
 		
-		this.clear(); 
+		this.clear();
+		
 		this.element.style.width = col * 50 + 'px';
 		this.element.style.height = row * 50 + 'px';
+		
 		let left = 0;
 		let top  = 0;
+		
 		let gen  = new generateContentModel();
 		
 		let player = Math.floor(Math.random() * (col * row));
@@ -184,10 +261,12 @@ class gameBoardRGBModel extends htmlModel{
 				
 				el.element.textContent = 'игрок';
 				el.element.className   = 'player';
+				el.element.style.zIndex = 2;
 				el.element.style.backgroundColor = 'white';
 				
 			} else {
 				
+				el.element.style.zIndex = 1;
 				el.element.textContent = gen.randomNumber(15);
 				el.element.className   = 'box';
 				el.element.style.backgroundColor = rgb;
@@ -199,6 +278,8 @@ class gameBoardRGBModel extends htmlModel{
 			this.element.appendChild(el.element);
 		}
 	}
+	
+	 
 }
 
 class gameScoreModel extends htmlModel {
@@ -500,6 +581,36 @@ class actionMoveLeftModel extends actionMoveModel{
 	}
 }
 
+class actionMoveRightModel extends actionMoveModel{
+	constructor(element){
+		super(element);
+	}
+	
+	action(){
+		this.toRight(50);
+	}
+}
+
+class actionMoveUpModel extends actionMoveModel{
+	constructor(element){
+		super(element);
+	}
+	
+	action(){
+		this.toUp(50);
+	}
+}
+
+class actionMoveDownModel extends actionMoveModel{
+	constructor(element){
+		super(element);
+	}
+	
+	action(){
+		this.toDown(50);
+	}
+}
+
 class actionSendColorModel extends actionModel {
 	constructor(element){
 		super(element);
@@ -507,6 +618,24 @@ class actionSendColorModel extends actionModel {
 	
 	action(){
 		
+	}
+}
+
+class actionCollisionModel extends actionModel {
+	constructor(element){
+		super(element);
+		this.space = new spaceModel();
+	}
+	
+	action(target,cb){
+		return cb(this.space.collision(element,target));
+	}
+	
+	actionList(array,cb){
+		
+		for(let i = 0 ; i < array.length; i++){
+			
+		}
 	}
 }
 
@@ -522,8 +651,8 @@ class eventsKeyDownModel extends eventsModel {
 	}
 	
 	event(cb){
-		this.element.addEventListener('keyDown',function(e){
-			db(e);
+		this.element.addEventListener('keydown',function(e){
+			cb(e);
 		});
 	}
 }
@@ -572,16 +701,11 @@ class eventsMouseClickModel extends eventsModel {
 	}
 	
 	event(cb){
-		this.element.addEventListener('click',function(e){
+		this.element.addEventListener('click' , function(e){
 			return cb(e);
 		});
 	}
 }
-
-
-
-
-
 
 let game = new gameModel('game');
 game.init(4);
@@ -591,5 +715,3 @@ game.init(4);
 
 var config = { level: 'small' };
 
-
-// нужно где-то описать поведение document.addEventListener
