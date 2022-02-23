@@ -42,11 +42,11 @@ class htmlModel {
 	}
 	
 	setTop(y){
-		return this.element.style.top.replace('px','');
+		this.element.style.top = y + 'px';
 	}
 	
 	setLeft(x){
-		return this.element.style.left.replace('px','');
+		this.element.style.left = x + 'px';
 	}
 	
 	getWidth(){
@@ -111,28 +111,24 @@ class gameModel extends htmlModel {
 		let player = this.player;
 		let boxCollection = this.box.collection;
 		keyDownDocument.event((e) => {
-			let playerActionCollision = new actionCollisionModel(player.element,boxCollection);
+		
+		let playerActionCollision = new actionCollisionModel(player.element,boxCollection);
 			
 			switch(e.code){
 				case 'ArrowLeft' : 
-					let playerActionMoveLeft = new actionMoveLeftModel(player.element);
-						playerActionMoveLeft.action();
-						playerActionCollision.action();		
+					
 				break;
 				case 'ArrowRight' : 
-					let playerActionMoveRight = new actionMoveRightModel(player.element);
-					playerActionMoveRight.action();
-					playerActionCollision.action();
+					
+					
 				break;
 				case 'ArrowUp' :
-					let playerActionMoveUp = new actionMoveUpModel(player.element);
-					playerActionMoveUp.action();
-					playerActionCollision.action();
+					
+					
 				break;
 				case 'ArrowDown' : 
-					let playerActionMoveDown = new actionMoveDownModel(player.element);
-					playerActionMoveDown.action();
-					playerActionCollision.action();
+					
+					
 				break;
 			}
 			
@@ -376,9 +372,10 @@ class generateContentModel {
 
 class spaceModel {
 	
-	collision(element,target){
+	collisionLeftTop(element,target){
 		return (this.eLeftEquallytTLeft(element,target) && this.eTopEquallyTTop(element,target));
 	}
+	
 	
 	eLeftEquallytTLeft(element,target){
 		return (this.sizeToNum(element.style.left) == this.sizeToNum(target.style.left));
@@ -420,7 +417,7 @@ class spaceModel {
 		   this.sizeToNum(target.style.left));
 	}
 	
-	eTopEquallyTBottom(element,target){
+	eBottomEquallyTBottom(element,target){
 		return (this.sizeToNum(element.style.top) + this.sizeToNum(element.style.height)
 			== 
 		   this.sizeToNum(target.style.left) + this.sizeToNum(target.style.height));
@@ -553,11 +550,16 @@ class keyBoardModel {
 class actionModel extends htmlModel{
 	constructor(element){
 		super(element);
+		this.next = null;
 		
 	}
 	
 	action(){
 		
+	}
+	
+	setNext(action){
+		this.next = action;
 	}
 }
 
@@ -578,8 +580,58 @@ class actionMoveLeftModel extends actionMoveModel{
 	
 	action(){
 		this.toLeft(50);
+		
+		if(this.next != null){
+			this.next.action();
+		}
 	}
 }
+
+// проверяем находится ли игрок на гировом поле
+class actionCollisionGameBoardModel extends actionModel{
+	
+	constructor(element){
+		super(element)
+	}
+	
+	action(){
+		// проверяем находится ли Элемент в пределах игровой доски
+		
+		let gameBoard = new htmlModel();
+		gameBoard.getQS('gameBoardRGB');
+		let next = true;
+		// 
+		
+		if(this.getLeft() <= 0){
+			
+			this.setLeft(0);
+			next = false;
+		}
+		
+		if(this.getTop() >= gameBoard.getHeight()){
+			
+			this.setTop(gameBoard.getHeight() - 50);
+			next = false;
+		}
+		
+		if(this.getTop() <= 0){
+			
+			this.setTop(0);
+			next = false;
+		}
+		
+		if(this.getLeft() >= gameBoard.getWidth()){
+			this.setLeft(gameBoard.getWidth() - 50);
+			next = false;
+		}
+		
+		if(this.next != null && next){
+			this.next.action();
+		}
+		
+	}
+}
+
 
 class actionMoveRightModel extends actionMoveModel{
 	constructor(element){
@@ -588,6 +640,10 @@ class actionMoveRightModel extends actionMoveModel{
 	
 	action(){
 		this.toRight(50);
+		
+		if(this.next != null){
+			this.next.action();
+		}
 	}
 }
 
@@ -598,6 +654,11 @@ class actionMoveUpModel extends actionMoveModel{
 	
 	action(){
 		this.toUp(50);
+		
+		
+		if(this.next != null){
+			this.next.action();
+		}
 	}
 }
 
@@ -608,6 +669,10 @@ class actionMoveDownModel extends actionMoveModel{
 	
 	action(){
 		this.toDown(50);
+		
+		if(this.next != null){
+			this.next.action();
+		}
 	}
 }
 
@@ -708,10 +773,37 @@ class eventsMouseClickModel extends eventsModel {
 }
 
 let game = new gameModel('game');
-game.init(4);
+game.init(5);
 
 // собираем приложение
 // исходя из уровня сложноти будет формироваться игра
 
 var config = { level: 'small' };
+
+let player= new htmlModel();
+player.getQS('player');
+
+let goLeft = new actionMoveLeftModel(player.element);
+let goDown = new actionMoveDownModel(player.element);
+let goRight = new actionMoveRightModel(player.element);
+let goUp = new actionMoveUpModel(player.element);
+let inBoard = new actionCollisionGameBoardModel(player.element);
+
+goLeft.setNext(inBoard);
+goDown.setNext(inBoard);
+goRight.setNext(inBoard);
+goUp.setNext(inBoard);
+
+document.addEventListener('keydown',function(e){
+	
+	switch(e.code){
+		case 'ArrowLeft'  : goLeft.action(); break;
+		case 'ArrowDown'  : goDown.action(); break;
+		case 'ArrowRight' : goRight.action(); break;
+		case 'ArrowUp'    : goUp.action(); break;
+		
+	}
+	
+});
+
 
