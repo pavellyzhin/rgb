@@ -110,31 +110,38 @@ class gameModel extends htmlModel {
 		
 		let player = this.player;
 		let boxCollection = this.box.collection;
+		
+		///
+		
+		let goLeft  = new actionMoveLeftModel(player.element);
+		let goDown  = new actionMoveDownModel(player.element);
+		let goRight = new actionMoveRightModel(player.element);
+		let goUp    = new actionMoveUpModel(player.element);
+		let inBoard = new actionCollisionGameBoardModel(player.element);
+
+		goLeft.setNext(inBoard);
+		goDown.setNext(inBoard);
+		goRight.setNext(inBoard);
+		goUp.setNext(inBoard);
+
+		///
 		keyDownDocument.event((e) => {
 		
 		let playerActionCollision = new actionCollisionModel(player.element,boxCollection);
 			
 			switch(e.code){
-				case 'ArrowLeft' : 
-					
-				break;
-				case 'ArrowRight' : 
-					
-					
-				break;
-				case 'ArrowUp' :
-					
-					
-				break;
-				case 'ArrowDown' : 
-					
-					
-				break;
-			}
-			
-			
-			
+				case 'ArrowLeft'  : goLeft.action(); break;
+				case 'ArrowDown'  : goDown.action(); break;
+				case 'ArrowRight' : goRight.action(); break;
+				case 'ArrowUp'    : goUp.action(); break;
+			}			
 		});
+		
+		
+ 	
+	 
+	
+ 
 		
 	}
 	
@@ -780,30 +787,6 @@ game.init(5);
 
 var config = { level: 'small' };
 
-let player= new htmlModel();
-player.getQS('player');
-
-let goLeft = new actionMoveLeftModel(player.element);
-let goDown = new actionMoveDownModel(player.element);
-let goRight = new actionMoveRightModel(player.element);
-let goUp = new actionMoveUpModel(player.element);
-let inBoard = new actionCollisionGameBoardModel(player.element);
-
-goLeft.setNext(inBoard);
-goDown.setNext(inBoard);
-goRight.setNext(inBoard);
-goUp.setNext(inBoard);
-
-document.addEventListener('keydown',function(e){
-	
-	switch(e.code){
-		case 'ArrowLeft'  : goLeft.action(); break;
-		case 'ArrowDown'  : goDown.action(); break;
-		case 'ArrowRight' : goRight.action(); break;
-		case 'ArrowUp'    : goUp.action(); break;
-		
-	}
-	
-});
+ 
 
 
