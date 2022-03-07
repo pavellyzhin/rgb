@@ -28,7 +28,7 @@ class actionCollisionRow extends actionCollision {
 			if(collision.elementTopEquallyTargetTop()){		
 			
 				element.move.row = rows.element.textContent;
-			console.log('row: '+ element.move.row);
+			//console.log('row: '+ element.move.row);
 				if(this.next != null) {
 					this.next.action(element);
 				}
@@ -61,7 +61,7 @@ class actionCollisionCol extends actionCollision {
 			
 			if(collision.elementLeftEquallyTargetLeft()){	
 				element.move.col = cols.element.textContent;			
-			console.log('col: '+cols.element.textContent);
+			//console.log('col: '+cols.element.textContent);
 				if(this.next != null) {
 					this.next.action(element);
 				}
@@ -104,8 +104,8 @@ class actionCollisionBox extends actionCollision {
 				element.move.clear();
 				element.moves.reload();
 				element.moveCount.setCount(element.moves.moves.length);
-				console.log(rows.element.style.backgroundColor);
-				console.log('Box - ' + rows.element.textContent);
+				//console.log(rows.element.style.backgroundColor);
+				//console.log('Box - ' + rows.element.textContent);
 				if(this.next != null) {
 					this.next.action(element);
 				}

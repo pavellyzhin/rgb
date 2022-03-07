@@ -41,34 +41,9 @@ class arrowLeftKey extends key {
 	}	
 	
 	down(player){
-		
-		let actMove = new actionMoveLeft();
-		
-		let collisionRow = new actionCollisionRow();
-		let collisionCol = new actionCollisionCol();
-		let collisionBox = new actionCollisionBox();
-		
-		let outUp    = new actionMoveOutUp();
-		let outLeft  = new actionMoveOutLeft();
-		let outRight = new actionMoveOutRight();
-		let outDown  = new actionMoveOutDown();
-		
-		actMove.setStep(50);
-		let gameOveR = new gameOver();
-		gameOveR.setNext(actMove);
-		actMove.setNext(outUp);
-		outUp.setNext(outLeft);
-		outLeft.setNext(outRight);
-		outRight.setNext(outDown);
-		outDown.setNext(collisionRow);
-		
-		collisionRow.setNext(collisionCol);
-		collisionCol.setNext(collisionBox);
-		
-		let acj = new actionColorJoines();
-		collisionBox.setNext(acj);
-		
-		gameOveR.action(player);
+		let commanD = new command();
+		commanD.setAct(new actionMoveLeft());
+		commanD.action(player);
 	}
 }
 
@@ -79,34 +54,9 @@ class arrowRightKey extends key {
 	}	
 	
 	down(player){
-	
-		let actMove = new actionMoveRight();
-		
-		let collisionRow = new actionCollisionRow();
-		let collisionCol = new actionCollisionCol();
-		let collisionBox = new actionCollisionBox();
-		
-		let outUp    = new actionMoveOutUp();
-		let outLeft  = new actionMoveOutLeft();
-		let outRight = new actionMoveOutRight();
-		let outDown  = new actionMoveOutDown();
-		
-		actMove.setStep(50);
-		let gameOveR = new gameOver();
-		gameOveR.setNext(actMove);
-		actMove.setNext(outUp);
-		outUp.setNext(outLeft);
-		outLeft.setNext(outRight);
-		outRight.setNext(outDown);
-		outDown.setNext(collisionRow);
-		
-		collisionRow.setNext(collisionCol);
-		collisionCol.setNext(collisionBox);
-		
-		let acj = new actionColorJoines();
-		collisionBox.setNext(acj);
-		
-		gameOveR.action(player);
+		let commanD = new command();
+		commanD.setAct(new actionMoveRight());
+		commanD.action(player);
 	}
 }
 
@@ -114,38 +64,14 @@ class arrowUpKey extends key {
 	constructor(){
 		super();
 		this.setCode('ArrowUp');
+		
 	}
 	
 	down(player){
-		
-		
-		let actMove = new actionMoveUp();
-		
-		let collisionRow = new actionCollisionRow();
-		let collisionCol = new actionCollisionCol();
-		let collisionBox = new actionCollisionBox();
-		
-		let outUp    = new actionMoveOutUp();
-		let outLeft  = new actionMoveOutLeft();
-		let outRight = new actionMoveOutRight();
-		let outDown  = new actionMoveOutDown();
-		
-		actMove.setStep(50);
-		let gameOveR = new gameOver();
-		gameOveR.setNext(actMove);
-		actMove.setNext(outUp);
-		outUp.setNext(outLeft);
-		outLeft.setNext(outRight);
-		outRight.setNext(outDown);
-		outDown.setNext(collisionRow);
-		
-		collisionRow.setNext(collisionCol);
-		collisionCol.setNext(collisionBox);
-		
-		let acj = new actionColorJoines();
-		collisionBox.setNext(acj);
-		
-		gameOveR.action(player);
+		// этот функционал повторяется, а значит его нужно вынести. из 3 сделать 1 
+		let commanD = new command();
+		commanD.setAct(new actionMoveUp());
+		commanD.action(player);
 	}
 }
 
@@ -156,10 +82,23 @@ class arrowDownKey extends key {
 	}
 	
 	down(player){
-		
-		
-		let actMove = new actionMoveDown();
-		
+		let commanD = new command();
+		commanD.setAct(new actionMoveDown());
+		commanD.action(player);
+	}
+}
+
+class command {
+	
+	constructor(){
+		this.act = null;
+	}
+	
+	setAct(act){
+		this.act = act;
+	}
+	
+	action(player){
 		let collisionRow = new actionCollisionRow();
 		let collisionCol = new actionCollisionCol();
 		let collisionBox = new actionCollisionBox();
@@ -168,11 +107,12 @@ class arrowDownKey extends key {
 		let outLeft  = new actionMoveOutLeft();
 		let outRight = new actionMoveOutRight();
 		let outDown  = new actionMoveOutDown();
-		
-		actMove.setStep(50);
 		let gameOveR = new gameOver();
-		gameOveR.setNext(actMove);
-		actMove.setNext(outUp);
+		
+		this.act.setStep(50);
+		
+		gameOveR.setNext(this.act);
+		this.act.setNext(outUp);
 		outUp.setNext(outLeft);
 		outLeft.setNext(outRight);
 		outRight.setNext(outDown);
@@ -187,7 +127,3 @@ class arrowDownKey extends key {
 		gameOveR.action(player);
 	}
 }
-
-
-
-
