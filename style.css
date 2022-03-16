@@ -136,3 +136,13 @@ div.box {
 }
 
 .move {padding: 0 5px 0 5px;}
+
+
+.rule {
+	width: 500px; height: 500px; border: 1px solid #DDD;
+	border-radius: 7px;
+	padding: 5px; position: absolute;
+	left: 10px; top: 10px;
+	display: none;
+	
+}

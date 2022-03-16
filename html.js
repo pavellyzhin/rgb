@@ -44,6 +44,14 @@ class html {
 		return parseInt(this.element.offsetHeight);
 	}
 	
+	show(display = 'block'){
+		this.element.style.display = display;
+	}
+	
+	hide(){
+		this.element.style.display = 'none';
+	}
+	
 }
 
 class collectionHTML extends html {
